@@ -237,8 +237,13 @@ class DbHandler {
      * @param String $task task text
      */
     public function createTask($user_id, $task) {
+
+        //print_r($task);
+        //die();
+        $data = $task['task'];
+
         $stmt = $this->conn->prepare("INSERT INTO tasks(task) VALUES(?)");
-        $stmt->bind_param("s", $task);
+        $stmt->bind_param("s", $data);
         $result = $stmt->execute();
         $stmt->close();
 
@@ -289,12 +294,15 @@ class DbHandler {
      * @param String $user_id id of the user
      */
     public function getAllUserTasks($user_id) {
-        $stmt = $this->conn->prepare("SELECT t.* FROM tasks t, user_tasks ut WHERE t.id = ut.task_id AND ut.user_id = ?");
+        $result = $this->conn->query( "SELECT t.* FROM tasks t, user_tasks ut WHERE t.id = ut.task_id AND ut.user_id = $user_id" );
+        return $result;
+        /*$stmt = $this->conn->prepare("SELECT t.* FROM tasks t, user_tasks ut WHERE t.id = ut.task_id AND ut.user_id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
-        $tasks = $stmt->get_result();
+        // $tasks = $stmt->get_result();
+        $tasks = $stmt->fetch();
         $stmt->close();
-        return $tasks;
+        return $tasks;*/
     }
 
     /**
