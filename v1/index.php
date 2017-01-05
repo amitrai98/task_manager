@@ -70,13 +70,13 @@ $app->post('/register', function() use ($app) {
 
      $headers = request_headers();
         
-        print_r($_SERVER);
-         die();  
-        if (array_key_exists('API_KEY', $headers)){
-            echo "no api";
-            die();  
-          echo $headers['API_KEY'];
-        }
+        // print_r($_SERVER);
+        //  die();  
+        // if (array_key_exists('API_KEY', $headers)){
+        //     echo "no api";
+        //     die();  
+        //   echo $headers['API_KEY'];
+        // }
        
 
     if($api_key == '612e648bf9594adb50844cad6895f2cf') {
@@ -196,12 +196,12 @@ $app->get('/tasks', 'authenticate', function() {
             global $user_id;
             $response = array();
             $db = new DbHandler();
-
+            
             // fetching all user tasks
-            $result = $db->getAllUserTasks($user_id);
-
+            $result = $db->getAllUserTasks(1);
             $response["error"] = false;
             $response["tasks"] = array();
+
 
             // looping through result and preparing tasks array
             while ($task = $result->fetch_assoc()) {
@@ -252,16 +252,26 @@ $app->get('/tasks/:id', 'authenticate', function($task_id) {
  */
 $app->post('/tasks', 'authenticate', function() use ($app) {
             // check for required params
-            verifyRequiredParams(array('task'));
 
+            $entityBody = file_get_contents('php://input');
+            $res=json_decode($entityBody,true);
+          // echoRespnse(200, $res);
+          //   die();
+            // $data = verifyRequiredParams(array('task'));
+
+
+ 
             $response = array();
             $task = $app->request->post('task');
+ //print_r($task);
+    //die("asdf");
+           
 
             global $user_id;
             $db = new DbHandler();
 
             // creating new task
-            $task_id = $db->createTask($user_id, $task);
+            $task_id = $db->createTask($user_id, $res);
 
             if ($task_id != NULL) {
                 $response["error"] = false;
@@ -333,6 +343,8 @@ $app->delete('/tasks/:id', 'authenticate', function($task_id) use($app) {
  * Verifying required params posted or not
  */
 function verifyRequiredParams($required_fields) {
+
+
     $error = false;
     $error_fields = "";
     $request_params = array();
@@ -348,6 +360,8 @@ function verifyRequiredParams($required_fields) {
             $error_fields .= $field . ', ';
         }
     }
+
+
 
     if ($error) {
         // Required field(s) are missing or empty
