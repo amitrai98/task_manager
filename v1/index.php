@@ -69,32 +69,9 @@ function authenticate(\Slim\Route $route) {
 $app->post('/register', function() use ($app) {
 
      $headers = request_headers();
-        
-        // print_r($_SERVER);
-        //  die();  
-        // if (array_key_exists('API_KEY', $headers)){
-        //     echo "no api";
-        //     die();  
-        //   echo $headers['API_KEY'];
-        // }
-       
-
-    if($api_key == '612e648bf9594adb50844cad6895f2cf') {
-                $authorized = true;
-        } else if ($api_key == NULL) {
-                $response["error"] = true;
-                $response["message"] = '{"error":{"text": "api key not sent" }}';
-                $app->response->headers['X-Authenticated'] = 'False';
-                $authorized = false;
-                $app->halt(401, $response['message']);
-        } else {
-                $response["error"] = true;
-                $response["message"] = '{"error":{"text": "api key invalid" }}';
-                $app->response->headers['X-Authenticated'] = 'False';
-                $authorized = false;
-        }
+    
  
-        if(!$authorized){ //key is false
+        // if(!$authorized){ //key is false
                 // dont return 403 if you request the home page
                 // check for required params
             verifyRequiredParams(array('name', 'email', 'password', 'mobile_no'));
@@ -106,6 +83,7 @@ $app->post('/register', function() use ($app) {
             $email = $app->request->post('email');
             $password = $app->request->post('password');
             $mobile_no = $app->request->post('mobile_no');
+
 
             // validating email address
             validateEmail($email);
@@ -128,7 +106,7 @@ $app->post('/register', function() use ($app) {
             }
             // echo json response
             echoRespnse(201, $response);
-        }
+        // }
 
 
 
@@ -198,7 +176,7 @@ $app->get('/tasks', 'authenticate', function() {
             $db = new DbHandler();
             
             // fetching all user tasks
-            $result = $db->getAllUserTasks(1);
+            $result = $db->getAllUserTasks($user_id);
             $response["error"] = false;
             $response["tasks"] = array();
 
@@ -354,6 +332,9 @@ function verifyRequiredParams($required_fields) {
         $app = \Slim\Slim::getInstance();
         parse_str($app->request()->getBody(), $request_params);
     }
+
+
+
     foreach ($required_fields as $field) {
         if (!isset($request_params[$field]) || strlen(trim($request_params[$field])) <= 0) {
             $error = true;
