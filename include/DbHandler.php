@@ -145,6 +145,21 @@ class DbHandler {
         return $num_rows > 0;
     }
 
+        /**
+     * Checking for duplicate user by mobile no
+     * @param String $mobile mobile to check in db
+     * @return boolean
+     */
+    private function isCheckedIn($checkin_date, $user_id) {
+        $stmt = $this->conn->prepare("SELECT checkin_date from user_checkins WHERE checkin_date = ? AND user_id = ?");
+        $stmt->bind_param("si", $checkin_date, $user_id);
+        $stmt->execute();
+        $stmt->store_result();
+        $num_rows = $stmt->num_rows;
+        $stmt->close();
+        return $num_rows > 0;
+    }
+
     /**
      * Fetching user by email
      * @param String $email User email id
@@ -351,6 +366,40 @@ class DbHandler {
         $stmt->close();
         return $result;
     }
+
+    /**
+     * Function to assign a task to user
+     * @param String $user_id id of the user
+     * @param String $task_id id of the task
+     */
+    public function createCheckin($user_id, $date) {
+
+        
+        if (!$this->isCheckedIn($date)) {
+            $date_first = date('Y-m-d 00:00:00');
+            $date_second = date('Y-m-d 23:59:59');
+
+            $stmt = $this->conn->prepare("SELECT users.* FROM users WHERE created_at BETWEEN $date_first AND $date_second");
+            $stmt->bind_param("ss", $user_id, $date);
+            $result = $stmt->execute();
+
+            if (false === $result) {
+                die('execute() failed: ' . htmlspecialchars($stmt->error));
+            }
+            $stmt->close();
+
+                 if ($result) {
+                        // User successfully inserted
+                        return USER_CREATED_SUCCESSFULLY;
+                } else {
+                        // Failed to create user
+                        return USER_CREATE_FAILED;
+            }
+        }
+        
+    }
+
+
 
 }
 

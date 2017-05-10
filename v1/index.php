@@ -113,6 +113,63 @@ $app->post('/register', function() use ($app) {
             
         });
 
+
+
+
+
+
+
+
+/**
+ * User Registration
+ * url - /register
+ * method - POST
+ * params - name, email, password
+ */
+$app->post('/checkin/:id', function($user_id) use ($app) {
+
+     $headers = request_headers();
+
+        // if(!$authorized){ //key is false
+                // dont return 403 if you request the home page
+                // check for required params
+            verifyRequiredParams(array('checkin_time'));
+
+            $response = array();
+
+            // reading post params
+            $checkin_time = $app->request->post('checkin_time');
+
+
+            // validating email address
+            
+
+            $db = new DbHandler();
+            $res = $db->createCheckin($user_id, $checkin_time);
+
+            if ($res == USER_CREATED_SUCCESSFULLY) {
+                $response["status"] = "success";
+                $response["message"] = "checkedin successfully";
+            } else if ($res == USER_CREATE_FAILED) {
+                $response["status"] = "failure";
+                $response["message"] = "Oops! unable to checkin now";
+            } else if ($res == USER_ALREADY_EXISTED) {
+                $response["status"] = "failure";
+                $response["message"] = "Sorry, this email already existed";
+            }else if ($res == PHONE_ALREADY_EXISTED) {
+                $response["status"] = "failure";
+                $response["message"] = "Sorry, this phone no is already registered";
+            }
+            // echo json response
+            echoRespnse(201, $response);
+        // }
+
+
+
+            
+        });
+
+
 /**
  * User Login
  * url - /login
@@ -316,6 +373,10 @@ $app->delete('/tasks/:id', 'authenticate', function($task_id) use($app) {
             }
             echoRespnse(200, $response);
         });
+
+
+
+
 
 /**
  * Verifying required params posted or not
